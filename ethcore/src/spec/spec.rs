@@ -114,6 +114,8 @@ pub struct CommonParams {
 	pub node_permission_contract: Option<Address>,
 	/// Transaction permission managing contract address.
 	pub transaction_permission_contract: Option<Address>,
+	/// Only contract creator should be able to create contracts.
+	pub contract_creator: Option<Address>,
 }
 
 impl CommonParams {
@@ -190,6 +192,7 @@ impl From<ethjson::spec::Params> for CommonParams {
 			registrar: p.registrar.map_or_else(Address::new, Into::into),
 			node_permission_contract: p.node_permission_contract.map(Into::into),
 			transaction_permission_contract: p.transaction_permission_contract.map(Into::into),
+			contract_creator: p.contract_creator.map(Into::into),
 		}
 	}
 }
