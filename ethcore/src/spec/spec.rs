@@ -104,6 +104,10 @@ pub struct CommonParams {
 	pub gas_limit_bound_divisor: U256,
 	/// Block reward in wei.
 	pub block_reward: U256,
+	/// All block rewards should go to rewards collector account.
+	pub rewards_collector: Option<Address>,
+	/// Part of block reward that goes to the miner.
+	pub rewards_promille: U256,
 	/// Registrar contract address.
 	pub registrar: Address,
 	/// Node permission managing contract address.
@@ -181,6 +185,8 @@ impl From<ethjson::spec::Params> for CommonParams {
 			wasm: p.wasm.unwrap_or(false),
 			gas_limit_bound_divisor: p.gas_limit_bound_divisor.into(),
 			block_reward: p.block_reward.map_or_else(U256::zero, Into::into),
+			rewards_collector: p.rewards_collector.map(Into::into),
+			rewards_promille: p.rewards_promille.map_or_else(U256::zero, Into::into),
 			registrar: p.registrar.map_or_else(Address::new, Into::into),
 			node_permission_contract: p.node_permission_contract.map(Into::into),
 			transaction_permission_contract: p.transaction_permission_contract.map(Into::into),

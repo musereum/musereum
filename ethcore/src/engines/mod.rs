@@ -494,21 +494,47 @@ pub mod common {
 		let fields = block.fields_mut();
 		// Bestow block reward
 		let reward = engine.params().block_reward;
-		let res = fields.state.add_balance(fields.header.author(), &reward, CleanupMode::NoEmpty)
-			.map_err(::error::Error::from)
-			.and_then(|_| fields.state.commit());
+		let miner_reward = reward * engine.params().rewards_promille / 1000.into();
 
-		let block_author = fields.header.author().clone();
-		fields.traces.as_mut().map(|mut traces| {
-  			let mut tracer = ExecutiveTracer::default();
-  			tracer.trace_reward(block_author, engine.params().block_reward, RewardType::Block);
-  			traces.push(tracer.drain())
-		});
+		if miner_reward > U256::zero() {
+			let res = fields.state.add_balance(fields.header.author(), &miner_reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
 
-		// Commit state so that we can actually figure out the state root.
-		if let Err(ref e) = res {
-			warn!("Encountered error on bestowing reward: {}", e);
+			if let Err(ref e) = res {
+				warn!("encountered error on bestowing reward: {}", e);
+			}
+
+			let block_author = fields.header.author().clone();
+			fields.traces.as_mut().map(|mut traces| {
+				let mut tracer = ExecutiveTracer::default();
+				tracer.trace_reward(block_author, miner_reward, RewardType::Block);
+				traces.push(tracer.drain())
+			});
+			if res.is_err() {
+				return res;
+			}
 		}
-		res
+
+		if let Some(rc) = engine.params().rewards_collector {
+			let rewards_collector = rc.clone();
+			let res = fields.state.add_balance(&rewards_collector, &reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
+
+			if let Err(ref e) = res {
+				warn!("encountered error on bestowing reward: {}", e);
+			}
+
+			fields.traces.as_mut().map(|mut traces| {
+				let mut tracer = ExecutiveTracer::default();
+				tracer.trace_reward(rewards_collector, engine.params().block_reward, RewardType::Block);
+				traces.push(tracer.drain())
+			});
+			if res.is_err() {
+				return res;
+			}
+		}
+		Ok(())
 	}
 }
