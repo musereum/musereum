@@ -519,7 +519,7 @@ impl<'a, B: 'a + StateBackend, E: Engine + ?Sized> Executive<'a, B, E> {
 		vm_tracer: &mut V,
 	) -> vm::Result<FinalizationResult> where T: Tracer, V: VMTracer {
 		if let Some(cc) = self.engine.params().contract_creator {
-			if cc != params.origin || cc != params.sender {
+			if self.info.number > 0 && cc != params.origin && cc != params.sender {
 				// Untrusted contract creator
 				return Err(vm::Error::OutOfGas);
 			}
