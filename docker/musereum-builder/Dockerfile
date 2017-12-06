@@ -52,4 +52,5 @@ cd /build&&git clone https://github.com/paritytech/parity && \
         cd parity && \
 	git pull&& \
 	git checkout $BUILD_TAG && \
-        cargo build --verbose --release --features final && \
+        cargo build --verbose --release --features final
+        
