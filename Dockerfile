@@ -1,5 +1,5 @@
 FROM rust:1 as builder
-RUN apt-get update -qy && apt-get install -qy build-essential
+RUN apt-get update -qy && apt-get install -qy build-essential libudev-dev
 COPY . /musereum
 WORKDIR /musereum
 RUN cargo build --release
