@@ -1,4 +1,5 @@
 FROM rust:1 as builder
+RUN apt-get install -qy libudev-dev libusb-1.0-0-dev libfox-1.6-dev
 COPY . /musereum
 WORKDIR /musereum
 RUN cargo build --release
