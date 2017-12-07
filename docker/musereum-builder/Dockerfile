@@ -7,7 +7,7 @@ RUN apt-get update && \
 	apt-get install -y --force-yes --no-install-recommends \
         # make
         build-essential \
-        add-apt-repository
+        add-apt-repository \
         software-properties-common \
         make \
         curl \
