@@ -4,7 +4,12 @@ COPY . /build/parity
 RUN cd /build/parity && \
 	cargo build --verbose --release --features final && \
 	strip /build/parity/target/release/parity && \
-	mkdir -p /parity && cp /build/parity/target/release/parity /parity
 	
+FROM alpine
+MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
+COPY --from=builder /build/target/release/parity /musereum
+EXPOSE 9001 9051
+WORKDIR /root
+VOLUME ["/root"]
 EXPOSE 8080 8545 8180
-ENTRYPOINT ["/parity/parity"]
+ENTRYPOINT ["/musereum"]
