@@ -33,7 +33,7 @@ RUN apt-get update && \
 RUN git clone https://github.com/debris/evmjit && \
 	cd evmjit && \
 	mkdir build && cd build && \
-	cmake .. && make && make install && cd && \
+	cmake .. && make && make install && cd
 
 # install rustup
 # curl https://sh.rustup.rs -sSf | sh -s -- -y && \
