@@ -3,8 +3,8 @@ MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
 COPY . /build/parity
 RUN cd /build/parity && \
 	cargo build --verbose --release --features final && \
-	strip /build/parity/target/release/parity && \
-	
+	strip /build/parity/target/release/parity
+
 FROM alpine
 MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
 COPY --from=builder /build/target/release/parity /musereum
