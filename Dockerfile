@@ -7,7 +7,7 @@ RUN cd /build/parity && \
 
 FROM alpine
 MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
-COPY --from=builder /build/target/release/parity /musereum
+COPY --from=builder /build/parity/target/release/parity /musereum
 EXPOSE 9001 9051
 WORKDIR /root
 VOLUME ["/root"]
