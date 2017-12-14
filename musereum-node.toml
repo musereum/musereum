@@ -1,6 +1,5 @@
 [parity]
-chain = "/musereum-genesis.json"
-base_path = "/data"
+chain = "/musereum-testnet-genesis.json"
 [network]
 port = 30300
 [rpc]
