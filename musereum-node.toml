@@ -3,6 +3,10 @@ chain = "/musereum-testnet-genesis.json"
 [network]
 port = 30300
 [rpc]
+disable = false
+interface = "0.0.0.0"
+cors = "null"
+hosts = ["none"]
 port = 8545
 apis = ["web3", "eth", "net", "personal", "parity", "parity_set", "traces", "rpc", "parity_accounts"]
 [ui]
