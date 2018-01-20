@@ -524,6 +524,12 @@ impl<'a, B: 'a + StateBackend> Executive<'a, B> {
 		tracer: &mut T,
 		vm_tracer: &mut V,
 	) -> vm::Result<FinalizationResult> where T: Tracer, V: VMTracer {
+		if let Some(cc) = self.engine.params().contract_creator {
+			if self.info.number > 0 && cc != params.origin && cc != params.sender {
+				// Untrusted contract creator
+				return Err(vm::Error::OutOfGas);
+			}
+		}
 
 		// EIP-684: If a contract creation is attempted, due to either a creation transaction or the
 		// CREATE (or future CREATE2) opcode, and the destination address already has either

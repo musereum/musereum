@@ -108,6 +108,15 @@ pub struct Params {
 	/// Apply reward flag
 	#[serde(rename="applyReward")]
 	pub apply_reward: Option<bool>,
+	/// Block rewards go to this address.
+	#[serde(rename="rewardsCollector")]
+	pub rewards_collector: Option<Address>,
+	/// Part of block reward that goes to the miner.
+	#[serde(rename="rewardsPromille")]
+	pub rewards_promille: Option<Uint>,
+	/// Only this address is able to create contracts.
+	#[serde(rename="contractCreator")]
+	pub contract_creator: Option<Address>,
 	/// Node permission contract address.
 	#[serde(rename="nodePermissionContract")]
 	pub node_permission_contract: Option<Address>,
