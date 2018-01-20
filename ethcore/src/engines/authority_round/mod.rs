@@ -647,7 +647,54 @@ impl Engine<EthereumMachine> for AuthorityRound {
 	/// Apply the block reward on finalisation of the block.
 	fn on_close_block(&self, block: &mut ExecutedBlock) -> Result<(), Error> {
 		// TODO: move to "machine::WithBalances" trait.
-		::engines::common::bestow_block_reward(block, self.block_reward)
+		// ::engines::common::bestow_block_reward(block, self.block_reward)
+
+		let miner_reward = reward * engine.params().rewards_promille / 1000.into();
+		let foundation_reward = reward - miner_reward;
+		
+		if let Some(fc) = engine.params().foundation_contract {
+			let foundation_contract = fc.clone();
+			let res = fields.state.add_balance(&foundation_contract, &foundation_reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
+
+			if let Err(ref e) = res {
+				warn!("encountered error on bestowing reward: {}", e);
+			}
+
+			fields.traces.as_mut().map(|mut traces| {
+				let mut tracer = ExecutiveTracer::default();
+				tracer.trace_reward(foundation_contract, engine.params().block_reward, RewardType::Block);
+				traces.push(tracer.drain())
+			});
+
+			if res.is_err() {
+				return res;
+			}
+		} else {
+			return err!("Foundation contract isn't defined");
+		}
+
+		if miner_reward > U256::zero() {
+			let fields = block.fields_mut();
+			// Bestow block reward
+			let res = fields.state.add_balance(fields.header.author(), &reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
+
+			let block_author = fields.header.author().clone();
+			fields.traces.as_mut().map(move |traces| {
+					let mut tracer = ExecutiveTracer::default();
+					tracer.trace_reward(block_author, reward, RewardType::Block);
+					traces.push(tracer.drain())
+			});
+
+			// Commit state so that we can actually figure out the state root.
+			if let Err(ref e) = res {
+				warn!("Encountered error on bestowing reward: {}", e);
+			}
+			res
+		}
 	}
 
 	/// Check the number of seal fields.
