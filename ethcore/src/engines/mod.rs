@@ -430,6 +430,6 @@ pub mod common {
 		if let Err(ref e) = res {
 			warn!("Encountered error on bestowing reward: {}", e);
 		}
-		res
+		Ok(())
 	}
 }

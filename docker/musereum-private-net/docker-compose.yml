@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  musereum-node01:
+    container_name: musereum-node01
+    image: andyceo/musereum:0.1.1
+    entrypoint: /musereum --config=/root/musereum-node.toml --force-sealing
+    command: --engine-signer="0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1" --password="/root/password.txt"
+    restart: always
+    ports:
+      - "8101:8545"
+    volumes:
+      - node01:/root:rw
+    networks:
+      musereumprivate:
+        ipv4_address: 172.19.1.11
+
+  musereum-node02:
+    container_name: musereum-node02
+    image: andyceo/musereum:0.1.1
+    entrypoint: /musereum --config=/root/musereum-node.toml --force-sealing
+    command: --engine-signer="0xffcf8fdee72ac11b5c542428b35eef5769c409f0" --password="/root/password.txt" --bootnodes enode://aa9b83a74210340a457d2bdb61e6e8d31ffa7989e3fa9a1efec47432bbc93d7ef16fa0a361438636a220ffb8f5a902e8de36636b255da8d5e8d2d89bf2590cd6@172.19.1.11:30300
+    restart: always
+    ports:
+      - "8102:8545"
+    depends_on:
+      - musereum-node01
+    volumes:
+      - node02:/root:rw
+    networks:
+      musereumprivate:
+        ipv4_address: 172.19.1.12
+
+  musereum-node03:
+    container_name: musereum-node03
+    image: andyceo/musereum:0.1.1
+    entrypoint: /musereum --config=/root/musereum-node.toml --force-sealing
+    command: --engine-signer="0x22d491bde2303f2f43325b2108d26f1eaba1e32b" --password="/root/password.txt" --bootnodes enode://aa9b83a74210340a457d2bdb61e6e8d31ffa7989e3fa9a1efec47432bbc93d7ef16fa0a361438636a220ffb8f5a902e8de36636b255da8d5e8d2d89bf2590cd6@172.19.1.11:30300
+    restart: always
+    ports:
+      - "8103:8545"
+    depends_on:
+      - musereum-node01
+    volumes:
+      - node03:/root:rw
+    networks:
+      musereumprivate:
+        ipv4_address: 172.19.1.13
+
+networks:
+  default:
+    external:
+      name: docknet
+  musereumprivate:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.1.0/24
+
+volumes:
+  node01:
+  node02:
+  node03:
