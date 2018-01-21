@@ -113,15 +113,6 @@ pub struct CommonParams {
 	pub wasm: bool,
 	/// Gas limit bound divisor (how much gas limit can change per block)
 	pub gas_limit_bound_divisor: U256,
-<<<<<<< HEAD
-=======
-	/// Block reward in wei.
-	pub block_reward: U256,
-	/// All block rewards should go to rewards collector account.
-	pub rewards_collector: Option<Address>,
-	/// Part of block reward that goes to the miner.
-	pub rewards_promille: U256,
->>>>>>> andyceo
 	/// Registrar contract address.
 	pub registrar: Address,
 	/// Node permission managing contract address.

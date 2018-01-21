@@ -1,0 +1,22 @@
+FROM andyceo/musereum:builder as builder
+MAINTAINER Aler Denisov <aler.zampillo@gmail.com> (@alerdenisov)
+ADD . /build
+ENV CARGO_HOME "/build/.cargo"
+RUN cargo build --verbose --release --features final
+# RUN cargo build --verbose --release --features final && \
+	  # strip /build/target/release/musereum
+
+FROM debian:stretch-slim
+MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
+
+RUN apt-get update && \
+	  apt-get install -y --force-yes --no-install-recommends openssl && \
+    apt-get clean && apt-get autoremove && rm -r /var/lib/apt/lists/* && rm -rf /tmp/* /var/tmp/*
+
+COPY --from=builder /build/target/release/musereum /musereum
+COPY --from=builder /build/musereum-testnet-genesis.json /musereum-testnet-genesis.json
+COPY --from=builder /build/musereum-node.toml /musereum-node.toml
+WORKDIR /root
+VOLUME ["/root"]
+EXPOSE 30300 8545 8180 8450
+ENTRYPOINT ["/musereum", "--config=/musereum-node.toml", "--force-sealing"]

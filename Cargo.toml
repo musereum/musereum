@@ -107,7 +107,7 @@ final = ["parity-version/final"]
 
 [[bin]]
 path = "parity/main.rs"
-name = "parity"
+name = "musereum"
 
 [profile.dev]
 panic = "abort"
