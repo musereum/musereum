@@ -121,6 +121,8 @@ pub struct CommonParams {
 	pub max_code_size: u64,
 	/// Transaction permission managing contract address.
 	pub transaction_permission_contract: Option<Address>,
+	/// Only contract creator should be able to create contracts.
+	pub contract_creator: Option<Address>,
 }
 
 impl CommonParams {
@@ -226,6 +228,7 @@ impl From<ethjson::spec::Params> for CommonParams {
 			node_permission_contract: p.node_permission_contract.map(Into::into),
 			max_code_size: p.max_code_size.map_or(u64::max_value(), Into::into),
 			transaction_permission_contract: p.transaction_permission_contract.map(Into::into),
+			contract_creator: p.contract_creator.map(Into::into),
 		}
 	}
 }
