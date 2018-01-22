@@ -663,6 +663,8 @@ impl Engine<EthereumMachine> for AuthorityRound {
 		// TODO: move to "machine::WithBalances" trait.
 		// ::engines::common::bestow_block_reward(block, self.block_reward)
 		let fields = block.fields_mut();
+		let header = fields.header.clone();
+		let height = header.number();
 		let reward = self.block_reward;
 		let miner_reward = reward * self.rewards_promille / 1000.into();
 		let foundation_reward = reward - miner_reward;
@@ -686,24 +688,24 @@ impl Engine<EthereumMachine> for AuthorityRound {
 			if res.is_err() {
 				return res;
 			}
-		} else {
+		} else if height > 0 {
 			return Err(
 				Error::Engine(
-					EngineError::FailedSystemCall("Foundation contract not found".to_string())
+					EngineError::FailedSystemCall(format!("Foundation contract not found {}", height))
 					)
 			);
 		}
 
 		if miner_reward > U256::zero() {
 			// Bestow block reward
-			fields.state.add_balance(fields.header.author(), &reward, CleanupMode::NoEmpty)
+			let _ = fields.state.add_balance(fields.header.author(), &miner_reward, CleanupMode::NoEmpty)
 				.map_err(::error::Error::from)
 				.and_then(|_| fields.state.commit());
 
 			let block_author = fields.header.author().clone();
 			fields.traces.as_mut().map(move |traces| {
 					let mut tracer = ExecutiveTracer::default();
-					tracer.trace_reward(block_author, reward, RewardType::Block);
+					tracer.trace_reward(block_author, miner_reward, RewardType::Block);
 					traces.push(tracer.drain())
 			});
 		}
