@@ -25,7 +25,7 @@ ETHNET_WS:=ws://localhost:3000
 ETHNET_SECRET:=TEST_ETHNET
 ETHNET_VERBOSITY:=2
 
-.PHONY: netstats-api netstats-ui
+.PHONY: netstats-api netstats-ui node bootnode 
 
 build:
 	echo Musereum source folder: $(value MUSEREUM_ROOT)
@@ -84,16 +84,17 @@ node:
 			echo --engine-signer="$(SIGNER)" --password="$(PASSWORDS_PATH) --force-sealing" \
 		; fi) \
 		--bootnodes="$(BOOTNODE)" \
+		$(ARGS) \
 		>& $(LOGS) &)
 	echo "node $(NODE) runs"
 
 bootnode: 
-	make node NODE=0 WITH_RPC=true WITH_UI=true WITH_WS=true
+	make node NODE=0 WITH_RPC=true WITH_UI=true WITH_WS=true ARGS="--rpccorsdomain http://localhost:4444"
 
 stop:
 	kill $(shell ps aux | grep -v grep | grep $(EXECUTION_PATH) | awk '{print $$2}')
+	pm2 stop stat-0 stat-1 stat-2 stat-3 stat-4 stat-5 stat-6 stat-7 stat-8 stat-9
 	kill $(shell ps aux | grep -v grep | grep $(ETHNET_API) | awk '{print $$2}')
-	kill $(shell lsof -n -i:3000 | grep -v PID | awk '{print $$2}' )
 
 netstats-api:
 	echo api
@@ -116,7 +117,7 @@ netstats-api:
 		WS_SERVER=$(ETHNET_WS) \
 		WS_SECRET=$(ETHNET_SECRET) \
 		VERBOSITY=$(ETHNET_VERBOSITY) \
-		node $(ETHNET_API)/app.js \
+		$(ETHNET_API)/node_modules/.bin/pm2 -n stat-$(NODE) start $(ETHNET_API)/app.js \
 	>& $(LOGS) &)
 
 	sleep 1
@@ -126,10 +127,8 @@ netstats-ui:
 	$(eval \
 		LOGS:=$(shell echo $(LOGS_ROOT)/stat-ui.txt) \
 	)
-	$(shell \
-		WS_SECRET=$(ETHNET_SECRET) \
-		npm start --prefix $(ETHNET_UI) \
-	>& $(LOGS) &)
+	$(eval export WS_SECRET=$(ETHNET_SECRET))
+	npm start --prefix $(ETHNET_UI)
 
 
 connect:
@@ -146,16 +145,6 @@ connect:
 	curl --data '{"jsonrpc":"2.0","method":"parity_addReservedPeer","params":[$(BOOTNODE)],"id":0}' -H "Content-Type: application/json" -X POST localhost:$(RPC)
 
 apis:
-	make netstats-ui
-	make netstats-api NODE=1
-	make netstats-api NODE=2
-	make netstats-api NODE=3
-	make netstats-api NODE=4
-	make netstats-api NODE=5
-	make netstats-api NODE=6
-	make netstats-api NODE=7
-	make netstats-api NODE=8
-	make netstats-api NODE=9
 
 testnet: #stop
 	make bootnode 
@@ -170,7 +159,16 @@ testnet: #stop
 	make node NODE=8 SIGNER=0x27f64d6bcb037fb44c26946a58a469a14f7b3434 WITH_RPC=true
 	make node NODE=9 SIGNER=0x2fe4cf7166afde6c30790264cb7694a1ff968c60 WITH_RPC=true
 
-	make apis
+	make netstats-api NODE=0
+	make netstats-api NODE=1
+	make netstats-api NODE=2
+	make netstats-api NODE=3
+	make netstats-api NODE=4
+	make netstats-api NODE=5
+	make netstats-api NODE=6
+	make netstats-api NODE=7
+	make netstats-api NODE=8
+	make netstats-api NODE=9
 
 	echo "wait for boot up"
 	sleep 15
@@ -187,4 +185,13 @@ testnet: #stop
 restart-net: 
 	kill $(shell ps aux | grep -v grep | grep $(ETHNET_API) | awk '{print $$2}')
 	kill $(shell lsof -n -i:3000 | grep -v PID | awk '{print $$2}' )
-	make apis
+	make netstats-api NODE=0
+	make netstats-api NODE=1
+	make netstats-api NODE=2
+	make netstats-api NODE=3
+	make netstats-api NODE=4
+	make netstats-api NODE=5
+	make netstats-api NODE=6
+	make netstats-api NODE=7
+	make netstats-api NODE=8
+	make netstats-api NODE=9
