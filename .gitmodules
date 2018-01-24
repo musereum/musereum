@@ -5,3 +5,15 @@
 [submodule "ethcore/res/wasm-tests"]
 	path = ethcore/res/wasm-tests
 	url = https://github.com/paritytech/wasm-tests
+[submodule "scripts/explorer"]
+	path = scripts/explorer
+	url = https://github.com/musereum/explorer.git
+[submodule "scripts/eth-benchmark"]
+	path = scripts/eth-benchmark
+	url = https://github.com/musereum/eth-benchmark.git
+[submodule "scripts/eth-netstats"]
+	path = scripts/eth-netstats
+	url = https://github.com/musereum/eth-netstats.git
+[submodule "scripts/eth-net-intelligence-api"]
+	path = scripts/eth-net-intelligence-api
+	url = https://github.com/musereum/eth-net-intelligence-api.git

@@ -45,6 +45,10 @@ use parking_lot::{Mutex, RwLock};
 use unexpected::{Mismatch, OutOfBounds};
 use bytes::Bytes;
 
+use block::ExecutedBlock;
+use trace::{Tracer, ExecutiveTracer, RewardType};
+use state::CleanupMode;
+
 mod finality;
 
 /// `AuthorityRound` params.
@@ -71,6 +75,10 @@ pub struct AuthorityRoundParams {
 	pub maximum_uncle_count_transition: u64,
 	/// Number of accepted uncles.
 	pub maximum_uncle_count: usize,
+	/// Foundation contract
+	pub foundation_contract: Option<Address>,
+	/// Miner reward part
+	pub rewards_promille: U256
 }
 
 const U16_MAX: usize = ::std::u16::MAX as usize;
@@ -92,6 +100,8 @@ impl From<ethjson::spec::AuthorityRoundParams> for AuthorityRoundParams {
 			block_reward: p.block_reward.map_or_else(Default::default, Into::into),
 			maximum_uncle_count_transition: p.maximum_uncle_count_transition.map_or(0, Into::into),
 			maximum_uncle_count: p.maximum_uncle_count.map_or(0, Into::into),
+			foundation_contract: p.foundation_contract.map(Into::into),
+			rewards_promille: p.rewards_promille.map_or_else(U256::zero, Into::into)
 		}
 	}
 }
@@ -279,6 +289,8 @@ pub struct AuthorityRound {
 	maximum_uncle_count_transition: u64,
 	maximum_uncle_count: usize,
 	machine: EthereumMachine,
+	rewards_promille: U256,
+	foundation_contract: Option<Address>
 }
 
 // header-chain validator.
@@ -438,6 +450,8 @@ impl AuthorityRound {
 				maximum_uncle_count_transition: our_params.maximum_uncle_count_transition,
 				maximum_uncle_count: our_params.maximum_uncle_count,
 				machine: machine,
+				rewards_promille: our_params.rewards_promille,
+				foundation_contract: our_params.foundation_contract
 			});
 
 		// Do not initialize timeouts for tests.
@@ -647,7 +661,56 @@ impl Engine<EthereumMachine> for AuthorityRound {
 	/// Apply the block reward on finalisation of the block.
 	fn on_close_block(&self, block: &mut ExecutedBlock) -> Result<(), Error> {
 		// TODO: move to "machine::WithBalances" trait.
-		::engines::common::bestow_block_reward(block, self.block_reward)
+		// ::engines::common::bestow_block_reward(block, self.block_reward)
+		let fields = block.fields_mut();
+		let header = fields.header.clone();
+		let height = header.number();
+		let reward = self.block_reward;
+		let miner_reward = reward * self.rewards_promille / 1000.into();
+		let foundation_reward = reward - miner_reward;
+		
+		if let Some(fc) = self.foundation_contract {
+			let foundation_contract = fc.clone();
+			let res = fields.state.add_balance(&foundation_contract, &foundation_reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
+
+			if let Err(ref e) = res {
+				warn!("encountered error on bestowing reward: {}", e);
+			}
+
+			let _ = fields.traces.as_mut().map(|traces| {
+				let mut tracer = ExecutiveTracer::default();
+				tracer.trace_reward(foundation_contract, foundation_reward, RewardType::Block);
+				traces.push(tracer.drain())
+			});
+
+			if res.is_err() {
+				return res;
+			}
+		} else if height > 0 {
+			return Err(
+				Error::Engine(
+					EngineError::FailedSystemCall(format!("Foundation contract not found {}", height))
+					)
+			);
+		}
+
+		if miner_reward > U256::zero() {
+			// Bestow block reward
+			let _ = fields.state.add_balance(fields.header.author(), &miner_reward, CleanupMode::NoEmpty)
+				.map_err(::error::Error::from)
+				.and_then(|_| fields.state.commit());
+
+			let block_author = fields.header.author().clone();
+			fields.traces.as_mut().map(move |traces| {
+					let mut tracer = ExecutiveTracer::default();
+					tracer.trace_reward(block_author, miner_reward, RewardType::Block);
+					traces.push(tracer.drain())
+			});
+		}
+
+		Ok(())
 	}
 
 	/// Check the number of seal fields.

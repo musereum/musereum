@@ -17,6 +17,7 @@
 //! Authority params deserialization.
 
 use uint::Uint;
+use hash::Address;
 use super::ValidatorSet;
 
 /// Authority params deserialization.
@@ -49,6 +50,10 @@ pub struct AuthorityRoundParams {
 	/// Maximum number of accepted uncles.
 	#[serde(rename="maximumUncleCount")]
 	pub maximum_uncle_count: Option<Uint>,
+	#[serde(rename="foundationContract")]
+	pub foundation_contract: Option<Address>,
+	#[serde(rename="rewardsPromille")]
+	pub rewards_promille: Option<Uint>
 }
 
 /// Authority engine deserialization.
