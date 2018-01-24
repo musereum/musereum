@@ -42,3 +42,8 @@ out/
 .vscode
 
 /parity.*
+
+.node-xmlhttp*
+.data
+musereum-testnet-genesis.json.test
+*ethplorer

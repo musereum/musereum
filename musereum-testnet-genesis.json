@@ -8,19 +8,25 @@
           "list": [
             "0x28968999fda1a0604658de8c4807d658e9bfac72",
             "0xde617c8dec878ee6d2ac810b0b692b8331b0c337",
-            "0x64369389c7b4bca09a682964fe901ac6fb61a8f4"
+            "0x64369389c7b4bca09a682964fe901ac6fb61a8f4",
+            "0xb4ea9042e257c9d2568d7f4c65d40e6f712e8f51",
+            "0x4a2c501632dcec3f413e6d29594909e821ff68e5",
+            "0x32c4bd446788a02e472c108fc2b6b2ad241db08d",
+            "0xd2fb746021df48703ebbda976a377a8f0bc053de",
+            "0x27f64d6bcb037fb44c26946a58a469a14f7b3434",
+            "0x2fe4cf7166afde6c30790264cb7694a1ff968c60"
           ]
         },
-        "blockReward": "0x4563918244f40000",
+        "blockReward": "0x29a2241af62c0000",
         "rewardsPromille": 100,
         "foundationContract": "0x0000000000000000000000000000000100C0FFEE"
       }
     }
   },
   "params": {
-    "gasLimitBoundDivisor": "0x400",
+    "gasLimitBoundDivisor": "0x40",
     "maximumExtraDataSize": "0x20",
-    "minGasLimit": "0x1388",
+    "minGasLimit": "0x138800",
     "networkID": "0xC0FFEE6"
   },
   "genesis": {
@@ -31,7 +37,7 @@
       }
     },
     "difficulty": "0x20000",
-    "gasLimit": "0x989680"
+    "gasLimit": "0x98968000"
   },
   "accounts": {
     "0x0000000000000000000000000000000100C0FFEE": {

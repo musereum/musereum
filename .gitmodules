@@ -5,3 +5,6 @@
 [submodule "ethcore/res/wasm-tests"]
 	path = ethcore/res/wasm-tests
 	url = https://github.com/paritytech/wasm-tests
+[submodule "scripts/explorer"]
+	path = scripts/explorer
+	url = https://github.com/musereum/explorer.git
