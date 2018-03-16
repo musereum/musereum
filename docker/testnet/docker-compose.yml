@@ -1,0 +1,39 @@
+version: '2'
+services:
+  node:
+    image: musereum/musereum:stable
+    volumes:
+      - ./genesis.json:${CHAINSPECS}
+      - ./run.sh:/root/run.sh
+      - ./keys:${KEYSPATH}
+      - ./data:${DATAPATH}
+    ports:
+      - "${RPCPORT}:8545"
+      - "${NODEPORT}:30000"
+      - "${NODEPORT}:30000/udp"
+      - "${WSPORT}:9545"
+      - "${UIPORT}:8180"
+    entrypoint: /bin/bash /root/run.sh
+    environment:
+      - UI=${UI}
+      - UI_PROTECT=${UI_PROTECT}
+      - UI_HOSTS=${UI_HOSTS}
+      - UI_BIND=${UI_BIND}
+      - WS=${WS}
+      - WS_HOSTS=${WS_HOSTS}
+      - WS_BIND=${WS_BIND}
+      - RPC=${RPC}
+      - RPC_APIS=${RPC_APIS}
+      - RPC_HOSTS=${RPC_HOSTS}
+      - RPC_BIND=${RPC_BIND}
+      - SIGNER=${SIGNER}
+      - BOOTNODE=${BOOTNODE}
+      - ROOTPATH=${ROOTPATH}
+      - DATAPATH=${DATAPATH}
+      - KEYSPATH=${KEYSPATH}
+      - CHAINSPECS=${CHAINSPECS}
+      - PASSWORDSPATH=${PASSWORDSPATH}
+      - NODEPORT=${NODEPORT}
+      - RPCPORT=${RPCPORT}
+      - WSPORT=${WSPORT}
+      - UIPORT=${UIPORT}

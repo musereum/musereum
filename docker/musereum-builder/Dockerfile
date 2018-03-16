@@ -1,5 +1,7 @@
 FROM rust:1
-MAINTAINER Andrey Andreev <andyceo@yandex.ru> (@andyceo)
+LABEL maintainer="Andrey Andreev <andyceo@yandex.ru> (@andyceo)"
+LABEL maintainer="Aler Denisov <aler.zampillo@gmail.com> (@alerdenisov)"
+
 WORKDIR /build
 
 # install tools and dependencies
@@ -34,19 +36,3 @@ RUN git clone https://github.com/debris/evmjit && \
 	cd evmjit && \
 	mkdir build && cd build && \
 	cmake .. && make && make install && cd
-
-# install rustup
-# curl https://sh.rustup.rs -sSf | sh -s -- -y && \
-
-# rustup directory
-# PATH=/root/.cargo/bin:$PATH && \
-
-# show backtraces
-# RUST_BACKTRACE=1 && \
-# build parity
-
-#cd /build&&git clone https://github.com/paritytech/parity && \
-#        cd parity && \
-#	git pull&& \
-#	git checkout $BUILD_TAG && \
-#        cargo build --verbose --release --features final
